@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Create categories tables using migration (id, name, picture, parent_id, created_at and updated_at)
+// Create products tables using migration (id, name, picture, category_id, created_at and updated_at)
+
+model Category {
+  id             String     @id @default(uuid())
+  name           String
+  // {url: string, image_path: string} 
+  // url to show image in browser and image_path for update in server
+  picture        Json
+  products  Product[]
+  parent_id String?
+  parent Category? @relation("ChildToParent", fields: [parent_id], references: [id])
+  children Category[] @relation("ChildToParent")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Product {
+  id String @id @default(uuid())
+  name String
+  picture Json
+  category_id String
+  category  Category @relation(fields: [category_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  }
