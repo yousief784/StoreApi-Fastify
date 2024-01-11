@@ -5,12 +5,12 @@ services:
         restart: always
         expose:
             - 5000
-        hostname: api_link
+        hostname: host_address
         command: npm run migrate:dev
         ports:
             - '5000:5000'
         networks:
-            api:
+            api_network:
         depends_on:
             - db
 
@@ -25,9 +25,9 @@ services:
         volumes:
             - mysqldata:/var/lib/mysql
         networks:
-            - api
+            - api_network
 
 networks:
-    api:
+    api_network:
 volumes:
     mysqldata:

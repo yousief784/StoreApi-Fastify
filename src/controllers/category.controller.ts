@@ -7,6 +7,9 @@ import config from '../config/config';
 import { BAD_REQUEST_ERROR } from '../utils/errors';
 
 class CategoryController {
+    /**
+     * @route GET /api/categories
+     */
     findAllCategories = async (req: FastifyRequest, reply: FastifyReply) => {
         const categories = await CategoryService.findAllCategories();
         reply.code(200).send({
@@ -16,16 +19,23 @@ class CategoryController {
         });
     };
 
+    /**
+     * @route GET /api/categories/:categoryId
+     * @required :categoryId in params
+     */
     findCaegoryById = async (req: FastifyRequest<{ Params: { categoryId: string } }>, reply: FastifyReply) => {
         const category = await CategoryService.findCategoryById(req.params.categoryId);
 
         reply.code(200).send({
             statusCode: 200,
             data: category,
-            message: '',
+            message: 'find single category by id',
         });
     };
 
+    /**
+     * @route GET /api/categories/tree
+     */
     findCategoriesAsTree = async (req: FastifyRequest, reply: FastifyReply) => {
         const categories = await CategoryService.findCategoriesAsTree();
 
@@ -36,8 +46,15 @@ class CategoryController {
         });
     };
 
+    /**
+     * @route POST /api/categories
+     * @required [name, picture] in boyd multipart/form-data
+     * @optional [parent_id]
+     */
     create = async (req: FastifyRequest<{ Body: CreateCategoryDto }>, reply: FastifyReply) => {
         const data = req.body;
+
+        if (!data.picture) throw new BAD_REQUEST_ERROR(`body must have required property 'picture'`);
 
         // uplad, crop picture and return with picture path
         const picturePath = await uploadPicture(data, FOLDERS_NAME.CATEGORIES_PICTURES);
@@ -55,6 +72,11 @@ class CategoryController {
         });
     };
 
+    /**
+     * @route PUT /api/categories/:categoryId
+     * @requied :categoryId in params
+     * @optional [name, picture, parent_id] in boyd multipart/form-data
+     */
     update = async (
         req: FastifyRequest<{
             Params: { categoryId: string };
@@ -92,6 +114,10 @@ class CategoryController {
         });
     };
 
+    /**
+     * @route DELETE /api/categories/:categoryId
+     * @requied :categoryId in params
+     */
     delete = async (req: FastifyRequest<{ Params: { categoryId: string } }>, reply: FastifyReply) => {
         await CategoryService.delete(req.params.categoryId);
 

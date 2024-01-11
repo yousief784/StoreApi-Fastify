@@ -7,6 +7,9 @@ import { BAD_REQUEST_ERROR } from '../utils/errors';
 import config from '../config/config';
 
 class ProductController {
+    /**
+     * @route GET /api/products
+     */
     findAllProducts = async (req: FastifyRequest, reply: FastifyReply) => {
         const products = await ProductService.findAllProducts();
         reply.code(200).send({
@@ -16,6 +19,10 @@ class ProductController {
         });
     };
 
+    /**
+     * @route GET /api/products/:productId
+     * @required :productId in params
+     */
     findProductById = async (req: FastifyRequest<{ Params: { productId: string } }>, reply: FastifyReply) => {
         const product = await ProductService.findProductById(req.params.productId);
 
@@ -26,22 +33,37 @@ class ProductController {
         });
     };
 
+    /**
+     * @route POST /api/products
+     * @required [name, picture, category_id] in boyd multipart/form-data
+     */
     create = async (req: FastifyRequest<{ Body: CreateProductDto }>, reply: FastifyReply) => {
         const data = req.body;
-        if (!(data.name && data.category_id && data.picture)) throw new BAD_REQUEST_ERROR('no product data to create');
+
+        // validion picture error
+        if (!data.picture) throw new BAD_REQUEST_ERROR(`body must have required property 'picture'`);
+
+        // uplad, crop picture and return with picture path
         const picturePath = await uploadPicture(data, FOLDERS_NAME.PRODUCTS_PICTURES);
-        const createNewProduct = await ProductService.create({
+
+        await ProductService.create({
             name: data.name.value,
             category_id: data.category_id.value,
             picture: picturePath,
         });
+
         reply.code(201).send({
             statusCode: 201,
-            data: createNewProduct,
+            data: null,
             message: 'Product created successfully',
         });
     };
 
+    /**
+     * @route PUT /api/products/:productId
+     * @requied :productId in params
+     * @optional [name, picture, category_id] in boyd multipart/form-data
+     */
     update = async (
         req: FastifyRequest<{
             Params: { productId: string };
@@ -50,17 +72,13 @@ class ProductController {
         reply: FastifyReply,
     ) => {
         const data = req.body;
-        // validation error
-        if (!(data && req.params.productId)) throw new BAD_REQUEST_ERROR('no body in request to update');
 
         // check if picture in body to upload it
         let picture: string | undefined;
-        if (req.body.picture) {
-            picture = await uploadPicture(data, FOLDERS_NAME.PRODUCTS_PICTURES);
-        }
+        if (req.body.picture) picture = await uploadPicture(data, FOLDERS_NAME.PRODUCTS_PICTURES);
 
         // update in service
-        const updateProduct = await ProductService.update(req.params.productId, {
+        await ProductService.update(req.params.productId, {
             name: data.name?.value,
             category_id: data.category_id?.value,
             picture: picture
@@ -73,11 +91,15 @@ class ProductController {
 
         reply.code(200).send({
             statusCode: 200,
-            data: updateProduct,
+            data: null,
             message: 'product updated successfully',
         });
     };
 
+    /**
+     * @route DELETE /api/products/:productId
+     * @requied :productId in params
+     */
     delete = async (req: FastifyRequest<{ Params: { productId: string } }>, reply: FastifyReply) => {
         await ProductService.delete(req.params.productId);
 

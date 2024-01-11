@@ -91,23 +91,11 @@ class ProductService {
                 id: productId,
             },
             data,
-            select: {
-                id: true,
-                name: true,
-                picture: true,
-                category: {
-                    select: {
-                        id: true,
-                        name: true,
-                        picture: true,
-                    },
-                },
-            },
         });
 
         if (!updatedCategory) throw new INTERNAL_SERVER_ERROR("cant't update category try again!");
 
-        return updatedCategory;
+        return true;
     };
 
     delete = async (productId: string) => {

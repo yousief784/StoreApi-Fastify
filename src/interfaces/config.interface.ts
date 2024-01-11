@@ -1,7 +1,6 @@
-import { NODE_ENV_ENUM } from '../utils/enums';
-
 export interface ConfigInterface {
     port: number;
     env: string;
+    host_address: string;
     imagesServer: string;
 }

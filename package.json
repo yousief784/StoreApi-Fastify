@@ -12,7 +12,6 @@
         "build": "tsc",
         "migrate": "prisma migrate dev",
         "migrate:dev": "prisma migrate dev && npm run dev",
-        "test": "jest",
         "prettier": "prettier --config .prettierrc src/**/*.ts --write",
         "lint": "npx eslint . --ext .ts"
     },
@@ -42,6 +41,8 @@
     },
     "devDependencies": {
         "@types/node": "^20.10.6",
+        "@typescript-eslint/eslint-plugin": "^6.18.1",
+        "@typescript-eslint/parser": "^6.18.1",
         "eslint": "^8.56.0",
         "nodemon": "^3.0.2",
         "prettier": "^3.1.1",
